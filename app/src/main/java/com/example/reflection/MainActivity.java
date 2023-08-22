@@ -33,4 +33,6 @@ public class MainActivity extends AppCompatActivity {
      * which is packaged with this application.
      */
     public native String stringFromJNI();
+    public static native void StaticFun();
+
 }
