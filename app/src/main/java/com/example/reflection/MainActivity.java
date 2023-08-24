@@ -8,6 +8,8 @@ import android.widget.TextView;
 
 import com.example.reflection.databinding.ActivityMainBinding;
 
+import java.lang.reflect.Field;
+
 public class MainActivity extends AppCompatActivity {
 
     // Used to load the 'reflection' library on application startup.
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
         tv.setText(stringFromJNI());
         execution_time(); //计算执行java层和jni层相同代码所花费的时间
         testJniAPI(); //测试JNI中的基础数据类型
+        TestJavaReFle(); //java层反射调用
     }
 
     public void execution_time(){
@@ -49,6 +52,30 @@ public class MainActivity extends AppCompatActivity {
     public void testJniAPI(){
         String resultString = testStringApi("hello from java");
         Log.i("Moonlight","resultString" + resultString);
+    }
+
+    public void TestJavaReFle(){
+        try {
+            Class testJavaReClazz;
+            Class testJavaReClazz2;
+            Class testJavaReClazz3;
+            testJavaReClazz = MainActivity.class.getClassLoader().loadClass("com.example.reflection.MoonlightTest");
+            testJavaReClazz2 = Class.forName("com.example.reflection.MoonlightTest");
+            testJavaReClazz3 = MoonlightTest.class;
+            Field publicStaticField_field = testJavaReClazz3.getDeclaredField("publicStaticField");
+            Field[] fields = testJavaReClazz3.getDeclaredFields();
+            for(Field i:fields){
+                Log.i("Moonlight","getDeclaredFields()-> "+i);
+            }
+            Field[] fields_2 = testJavaReClazz3.getFields();
+            for(Field i:fields_2){
+                Log.i("Moonlight","getFields()-> "+i);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
     }
     /**
      * A native method that is implemented by the 'reflection' native library,
