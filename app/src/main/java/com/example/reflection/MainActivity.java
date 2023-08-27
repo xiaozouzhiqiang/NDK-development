@@ -8,7 +8,9 @@ import android.widget.TextView;
 
 import com.example.reflection.databinding.ActivityMainBinding;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class MainActivity extends AppCompatActivity {
@@ -103,13 +105,41 @@ public class MainActivity extends AppCompatActivity {
     }
     public void TestJavaMethod(){
         Class MoonlightTestClazz = MoonlightTest.class;
-        Method[] getDeclaredMethods = MoonlightTestClazz.getDeclaredMethods();
-        for(Method i : getDeclaredMethods){
-            Log.i("Moonlight","getDeclaredMethods-> "+i);
-        }
-        Method[] getMethods = MoonlightTestClazz.getMethods();
-        for(Method i : getMethods){
-            Log.i("Moonlight","getMethods-> "+i);
+        try {
+            Method[] getDeclaredMethods = MoonlightTestClazz.getDeclaredMethods();
+            Method[] getMethods = MoonlightTestClazz.getMethods();
+            Method publicStaticFunction_method = MoonlightTestClazz.getDeclaredMethod("publicStaticFunction");
+            publicStaticFunction_method.invoke(null); //获取公有静态的无参方法，直接写null即可
+            Method privateStaticFunction_method = MoonlightTestClazz.getDeclaredMethod("privateStaticFunction");
+            privateStaticFunction_method.setAccessible(true);//和访问静态属性一致，需要设置权限
+            privateStaticFunction_method.invoke(null);
+            Constructor[] constructors = MoonlightTestClazz.getDeclaredConstructors(); //获取所有的构造函数
+            Constructor MoonlightTestConstructors = MoonlightTestClazz.getDeclaredConstructor(String.class); //获取指定的构造函数
+            Log.i("Moonlight","MoonlightTestConstructors-> "+MoonlightTestConstructors);
+            Object MoonlightTestObj = MoonlightTestConstructors.newInstance("this is my MoonLight"); //将值传入重载函数MoonlightTest中，并返回一个对象
+            Field privateNotStaticField_field = MoonlightTestClazz.getDeclaredField("privateNotStaticField");
+            privateNotStaticField_field.setAccessible(true); //设置权限
+            String privateNotStaticField_field_content = (String) privateNotStaticField_field.get(MoonlightTestObj);
+            Log.i("Moonlight","privateNotStaticField_field_content-> "+privateNotStaticField_field_content);
+            for(Method i : getDeclaredMethods){
+                Log.i("Moonlight","getDeclaredMethods-> "+i);
+            }
+            for(Method i : getMethods){
+                Log.i("Moonlight","getMethods-> "+i);
+            }
+            for(Constructor i : constructors){
+                Log.i("Moonlight","getDeclaredConstructors-> "+i);
+            }
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -9,6 +9,7 @@ public class MoonlightTest {
     }
     public MoonlightTest(String content){
         flag = "public MoonlightTest(String content)";
+        Log.i("Moonlight",content);
     }
     public MoonlightTest(String content,int arg){
         flag = "public MoonlightTest(String content,int arg)";
