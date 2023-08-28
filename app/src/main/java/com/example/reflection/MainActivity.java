@@ -31,9 +31,9 @@ public class MainActivity extends AppCompatActivity {
         TextView tv = binding.sampleText;
         tv.setText(stringFromJNI());
         //execution_time(); //计算执行java层和jni层相同代码所花费的时间
-        testJniAPI(); //测试JNI中的基础数据类型
+        //testJniAPI(); //测试JNI中的基础数据类型
         //TestJavaField(); // 反射调用java层属性
-        TestJavaMethod();
+        //TestJavaMethod();
     }
 
     public void execution_time(){
@@ -148,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
      * which is packaged with this application.
      */
     public native String stringFromJNI();
+    public native String stringFromJNIC();
     public static native void StaticFun();
     public native int jni_add(int num);
     public native String testStringApi(String content);
