@@ -5,6 +5,8 @@ extern "C"{
     #include "testC.h"
 }
 #include "android/log.h"
+jobject globalClassloader = nullptr;
+jclass findClass = nullptr;
 JavaVM* globalVM = nullptr;
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_reflection_MainActivity_stringFromJNI(JNIEnv* env,jobject /* this */) {
@@ -23,6 +25,20 @@ Java_com_example_reflection_MainActivity_stringFromJNI(JNIEnv* env,jobject /* th
     const char * content_ptr = env->GetStringUTFChars(publicStaticField_content, nullptr);
     __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","Jni->%s",content_ptr);
     return env->NewStringUTF(hello.c_str());
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_reflection_MainActivity_NewObject(JNIEnv* env,jobject /* this */) {
+    jclass MoonLightTestClass = env->FindClass("com/example/reflection/MoonlightTest"); //获取类
+    //public MoonlightTest(String content)
+    jmethodID MoonTest_mid = env->GetMethodID(MoonLightTestClass,"<init>", "(Ljava/lang/String;)V"); //获取方法ID
+    jstring args1 = env->NewStringUTF("I am from Jni NewObject");
+    //jobject NewObject(jclass clazz, jmethodID methodID, ...),第一个是class，第二个参数是MethodID，第三个是参数
+    jobject testObject = env->NewObject(MoonLightTestClass,MoonTest_mid,args1);
+    if(testObject!= nullptr){
+
+    }
+
 }
 
 extern "C" JNIEXPORT void JNICALL
@@ -60,17 +76,24 @@ void *MoonLightThreadTest(void *args){
         __android_log_print(ANDROID_LOG_INFO, "Moonlight", "JNI->%s,%d","I am from MoonLightThreadTest",i);
     }
     JNIEnv* ThreadTestEnv = nullptr;
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->MoonLightThreadTest","globalVM->%p",globalVM);
     //globalVM 是上面建立的公有指针对象
-//    if(globalVM->GetEnv((void**)&ThreadTestEnv,JNI_VERSION_1_6)==JNI_OK){
-//        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "globalVM->GetEnv((void**)&ThreadTestEnv,JNI_VERSION_1_6)->%s","globalVM is Success!");
-//    } else{
-//        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "globalVM->GetEnv((void**)&ThreadTestEnv,JNI_VERSION_1_6)->%s","globalVM is failed!");
-//    }
-//    if(globalVM->AttachCurrentThread(&ThreadTestEnv, nullptr)==JNI_OK){
-//        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "globalVM->AttachCurrentThread(&ThreadTestEnv, nullptr) %s","globalVM is Success!");
-//    } else{
-//        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "globalVM->AttachCurrentThread(&ThreadTestEnv, nullptr) %s","globalVM is failed!");
-//    }
+    if(globalVM->GetEnv((void**)&ThreadTestEnv,JNI_VERSION_1_6)==JNI_OK){
+        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "globalVM->GetEnv((void**)&ThreadTestEnv,JNI_VERSION_1_6)->%s","globalVM is Success!");
+    } else{
+        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "globalVM->GetEnv((void**)&ThreadTestEnv,JNI_VERSION_1_6)->%s","globalVM is failed!");
+    }
+    //附加到当前线程中
+    if(globalVM->AttachCurrentThread(&ThreadTestEnv, nullptr)==JNI_OK){
+        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "globalVM->AttachCurrentThread(&ThreadTestEnv, nullptr) %s","globalVM is Success!");
+        jstring content = ThreadTestEnv->NewStringUTF("MoonLightThreadTest -> content");
+        const char* CharContent = ThreadTestEnv->GetStringUTFChars(content, nullptr);
+        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "MoonLightThreadTest-> %s",CharContent);
+        ThreadTestEnv->ReleaseStringUTFChars(content, CharContent); //释放掉用掉的内存
+    } else{
+        __android_log_print(ANDROID_LOG_INFO, "Moonlight", "globalVM->AttachCurrentThread(&ThreadTestEnv, nullptr) %s","globalVM is failed!");
+    }
+    globalVM->DetachCurrentThread();   //退出附加线程
     pthread_exit(0);
 }
 
@@ -83,6 +106,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
         __android_log_print(ANDROID_LOG_INFO, "Moonlight->Jni_OnLoad", "JNIEnv is Called Success!");
     }
     pthread_t thread;
+    globalVM = vm;
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->JNI_OnLoad","JNIEnv->%p",env);
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->JNI_OnLoad","JavaVM->%p",vm);
     //int pthread_create(pthread_t* __pthread_ptr, pthread_attr_t const* __attr, void* (*__start_routine)(void*), void*);
     pthread_create(&thread, nullptr,MoonLightThreadTest, nullptr);
     pthread_join(thread, nullptr);

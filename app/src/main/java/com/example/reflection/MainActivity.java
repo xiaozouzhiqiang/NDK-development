@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         //testJniAPI(); //测试JNI中的基础数据类型
         //TestJavaField(); // 反射调用java层属性
         //TestJavaMethod();
+        NewObject();
     }
 
     public void execution_time(){
@@ -152,4 +153,5 @@ public class MainActivity extends AppCompatActivity {
     public static native void StaticFun();
     public native int jni_add(int num);
     public native String testStringApi(String content);
+    public native void NewObject();
 }
