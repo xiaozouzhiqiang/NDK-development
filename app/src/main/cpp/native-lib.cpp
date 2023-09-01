@@ -29,6 +29,7 @@ Java_com_example_reflection_MainActivity_stringFromJNI(JNIEnv* env,jobject /* th
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_reflection_MainActivity_NewObject(JNIEnv* env,jobject /* this */) {
+    //方式一，NewObject方式
     jclass MoonLightTestClass = env->FindClass("com/example/reflection/MoonlightTest"); //获取类
     //public MoonlightTest(String content)
     jmethodID MoonTest_mid = env->GetMethodID(MoonLightTestClass,"<init>", "(Ljava/lang/String;)V"); //获取方法ID
@@ -36,11 +37,51 @@ Java_com_example_reflection_MainActivity_NewObject(JNIEnv* env,jobject /* this *
     //jobject NewObject(jclass clazz, jmethodID methodID, ...),第一个是class，第二个参数是MethodID，第三个是参数
     jobject testObject = env->NewObject(MoonLightTestClass,MoonTest_mid,args1);
     if(testObject!= nullptr){
-
+        __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","NewObject->%s","NewObject Success!");
     }
-
+    //方式二，AllocObject
+    jobject testObject2 = env->AllocObject(MoonLightTestClass);
+    jstring args2 = env->NewStringUTF("I am from Jni AllocObject");
+    env->CallNonvirtualVoidMethod(testObject2,MoonLightTestClass,MoonTest_mid,args2);
+    if(testObject!= nullptr){
+        __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","AllocObject->%s","AllocObject Success!");
+    }
 }
 
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_reflection_MainActivity_getJavaStatus(JNIEnv* env,jobject /* this */) {
+    //获取java公有静态属性
+    jclass MoonLightTestClass = env->FindClass("com/example/reflection/MoonlightTest"); //获取类
+    //public static String publicStaticField = "I am public StaticField";  //需要获取的java层公有的静态属性
+    //jfieldID GetStaticFieldID(jclass clazz, const char* name, const char* sig) //参数1：class类加载对象，参数2：属性名称，参数3：属性签名
+    jfieldID publicStatic_Field = env->GetStaticFieldID(MoonLightTestClass,"publicStaticField","Ljava/lang/String;");
+    //static_cast<jstring> 强制类型转换
+    jstring publicStaticField_Obj = static_cast<jstring>(env->GetStaticObjectField(MoonLightTestClass, publicStatic_Field));
+    //GetStringUTFChars 获取指针类型字符串
+    const char* publicStaticField_Content = env->GetStringUTFChars(publicStaticField_Obj, nullptr);
+    if(publicStaticField_Content != nullptr){
+        __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","publicStaticField_obj->%s",publicStaticField_Content);
+    }
+
+    //获取java私有静态属性
+    //private static String privateStaticField = "I am private StaticField";
+    jfieldID privateStatic_Field = env->GetStaticFieldID(MoonLightTestClass,"privateStaticField","Ljava/lang/String;");
+    //static_cast<jstring> 强制类型转换
+    jstring privateStaticField_obj = static_cast<jstring>(env->GetStaticObjectField(MoonLightTestClass, privateStatic_Field));
+    //GetStringUTFChars 获取指针类型字符串
+    const char* privateStaticField_content = env->GetStringUTFChars(privateStaticField_obj, nullptr);
+    if(privateStaticField_content != nullptr){
+        __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","privateStaticField_obj->%s",privateStaticField_content);
+    }
+
+    //获取公有int类型的静态属性
+    //public static int publicStaticIntField = 100;
+    jfieldID publicStaticInt_Field = env->GetStaticFieldID(MoonLightTestClass,"publicStaticIntField","I");
+    jint publicStaticInt_value= env->GetStaticIntField(MoonLightTestClass, publicStaticInt_Field);
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","publicStaticInt_value->%d",publicStaticInt_value);
+
+
+}
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_reflection_MainActivity_StaticFun(JNIEnv* env,jclass /* this */) {
     int result = add_C(4,6);

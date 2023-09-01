@@ -17,6 +17,9 @@ public class MoonlightTest {
     public static String publicStaticField = "I am public StaticField";
     public String publicNotStaticField = "I am public Not StaticField";
 
+    public static int publicStaticIntField = 100;
+    public int publicNonStaticIntField = 100;
+
     private static String privateStaticField = "I am private StaticField";
     private  String privateNotStaticField = "I am private Not StaticField";
 
