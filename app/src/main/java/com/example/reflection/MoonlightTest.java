@@ -4,12 +4,16 @@ import android.util.Log;
 
 public class MoonlightTest {
     public String flag = null;
+    public int[] intArray = null;
     public MoonlightTest(){
         flag = "MoonlightTest()";
     }
     public MoonlightTest(String content){
         flag = "public MoonlightTest(String content)";
-        Log.i("Moonlight",content);
+        intArray = new int[10];
+        for (int i = 0; i < 10; i++) {
+            intArray[i] = i;
+        }
     }
     public MoonlightTest(String content,int arg){
         flag = "public MoonlightTest(String content,int arg)";
@@ -20,8 +24,11 @@ public class MoonlightTest {
     public static int publicStaticIntField = 100;
     public int publicNonStaticIntField = 100;
 
+    private static int privateStaticIntField = 300;
+    private int privateNonStaticIntField = 400;
+
     private static String privateStaticField = "I am private StaticField";
-    private  String privateNotStaticField = "I am private Not StaticField";
+    private String privateNotStaticField = "I am private Not StaticField";
 
     public static void publicStaticFunction(){
         Log.i("Moonlight","I am from publicStaticFunction");

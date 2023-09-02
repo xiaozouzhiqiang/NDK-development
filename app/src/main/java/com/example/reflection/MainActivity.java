@@ -30,12 +30,15 @@ public class MainActivity extends AppCompatActivity {
         // Example of a call to a native method
         TextView tv = binding.sampleText;
         tv.setText(stringFromJNI());
+        MoonlightTest MoonObj = new MoonlightTest("I am from Java MoonlightTest");
         //execution_time(); //计算执行java层和jni层相同代码所花费的时间
         //testJniAPI(); //测试JNI中的基础数据类型
         //TestJavaField(); // 反射调用java层属性
-        //TestJavaMethod();
-        //NewObject();
-        getJavaStatus();
+        //TestJavaMethod(); //反射java中的方方法
+        //NewObject();  //JNI中新建对象
+        //getJavaStatus(); //JNi反射java中的静态属性
+        getJavaNotStaticField(MoonObj); //JNi中反射java中的非静态属性
+        TestJavaIntArray(MoonObj); //测试调用java层int数组，查看在jni层修改的int array值，是否改变
     }
 
     public void execution_time(){
@@ -144,6 +147,12 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
     }
+    public void TestJavaIntArray(MoonlightTest moonObj){
+        int[] java_array = moonObj.intArray;
+        for (int i = 0; i < java_array.length; i++) {
+            Log.i("Moonlight->java_array",i+"--"+java_array[i]);
+        }
+    }
 
     /**
      * A native method that is implemented by the 'reflection' native library,
@@ -155,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
     public native int jni_add(int num);
     public native String testStringApi(String content);
     public native void NewObject();
+    public native void getJavaStatusField();
+    public native void getJavaNotStaticField(Object MObj);
 
-    public native void getJavaStatus();
 }
