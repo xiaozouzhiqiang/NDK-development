@@ -96,6 +96,16 @@ Java_com_example_reflection_MainActivity_getJavaStatusField(JNIEnv* env,jobject 
 
 }
 
+extern "C" JNIEXPORT jobject JNICALL
+Java_com_example_reflection_MainActivity_CallInit(JNIEnv* env,jobject /* this */) {
+    //public MoonlightTest(String content,int arg);
+    jclass MoonLightTestClass = env->FindClass("com/example/reflection/MoonlightTest"); //获取类
+    jmethodID MoonTest_mid = env->GetMethodID(MoonLightTestClass,"<init>", "(Ljava/lang/String;I)V"); //获取方法ID
+    jstring args1 = env->NewStringUTF("I am from Jni CallInit"); //声明一个String字符串
+    jobject TestObject = env->NewObject(MoonLightTestClass,MoonTest_mid,args1,1000);
+    return TestObject;
+}
+
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_reflection_MainActivity_getJavaNotStaticField(JNIEnv* env,jobject obj,jobject MoonObj) {
     //访问私有的非静态属性
