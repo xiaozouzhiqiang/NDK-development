@@ -39,8 +39,10 @@ public class MainActivity extends AppCompatActivity {
         //getJavaStatus(); //JNi反射java中的静态属性
         //getJavaNotStaticField(MoonObj); //JNi中反射java中的非静态属性
         //TestJavaIntArray(MoonObj); //测试调用java层int数组，查看在jni层修改的int array值，是否改变
-        MoonlightTest MoonObj2 = (MoonlightTest)CallInit();
-        Log.i("MoonLight->onCreate",MoonObj2.flag);
+        //MoonlightTest MoonObj2 = (MoonlightTest)CallInit(); //测试经过JNi层初始化后，构造函数是否初始化
+        //Log.i("MoonLight->onCreate",MoonObj2.flag);
+        CallJavaStaticFun(); //Jni反射java层静态函数;
+        CallJavaNotStaticFun();//jni反射java层非静态函数;
     }
 
     public void execution_time(){
@@ -169,5 +171,6 @@ public class MainActivity extends AppCompatActivity {
     public native void getJavaStatusField();
     public native void getJavaNotStaticField(Object MObj);
     public native Object CallInit();
-
+    public native void CallJavaStaticFun();
+    public native void CallJavaNotStaticFun();
 }

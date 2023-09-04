@@ -107,6 +107,35 @@ Java_com_example_reflection_MainActivity_CallInit(JNIEnv* env,jobject /* this */
 }
 
 extern "C" JNIEXPORT void JNICALL
+Java_com_example_reflection_MainActivity_CallJavaStaticFun(JNIEnv* env,jobject /* this */){
+    //public static void publicStaticFunction()
+    jclass MoonLightClass = env->FindClass("com/example/reflection/MoonlightTest");
+    jmethodID JavaPublicStaFun_mid = env->GetStaticMethodID(MoonLightClass,"publicStaticFunction","()V");
+    //和java层反射不同的是，JNI反射静态函数时，不需要setAccessible(true)
+    //CallStaticVoidMethod用于Void类型的静态函数，除此之外还有CallStaticByteMethod.CallStaticBooleanMethod等
+    env->CallStaticVoidMethod(MoonLightClass,JavaPublicStaFun_mid);
+    //private static void privateStaticFunction(){
+    jmethodID JavaPrivateStaFun_mid = env->GetStaticMethodID(MoonLightClass,"privateStaticFunction","()V");
+    env->CallStaticVoidMethod(MoonLightClass,JavaPrivateStaFun_mid);
+
+    //public static int PublicStaticIntFunction(int a)
+    jmethodID JavaPublicStaticIntFun_mid = env->GetStaticMethodID(MoonLightClass,"PublicStaticIntFunction","(I)I");
+    jint int520 = env->CallStaticIntMethod(MoonLightClass,JavaPublicStaticIntFun_mid,20);
+    //public static String PublicStaticStringFunction(String args)
+    jmethodID JavaPublicStaticStrinFun_mid = env->GetStaticMethodID(MoonLightClass,"PublicStaticStringFunction","(Ljava/lang/String;)Ljava/lang/String;");
+    jstring loveValue = env->NewStringUTF("I love you");
+    jstring ZmyString = static_cast<jstring>(env->CallStaticObjectMethod(MoonLightClass,JavaPublicStaticStrinFun_mid,loveValue));
+    const char* result_string = env->GetStringUTFChars(ZmyString, nullptr);
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","CallJavaStaticFun->%s,%d",result_string,int520);
+
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_reflection_MainActivity_CallJavaNotStaticFun(JNIEnv* env,jobject /* this */){
+
+}
+
+extern "C" JNIEXPORT void JNICALL
 Java_com_example_reflection_MainActivity_getJavaNotStaticField(JNIEnv* env,jobject obj,jobject MoonObj) {
     //访问私有的非静态属性
     //private  String privateNotStaticField = "I am private Not StaticField";

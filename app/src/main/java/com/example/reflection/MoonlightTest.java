@@ -33,6 +33,14 @@ public class MoonlightTest {
     public static void publicStaticFunction(){
         Log.i("Moonlight","I am from publicStaticFunction");
     }
+    public static int PublicStaticIntFunction(int a){
+        Log.i("Moonlight","I am from publicStaticFunction");
+        return 500 + a;
+    }
+    public static String PublicStaticStringFunction(String args){
+        Log.i("Moonlight","I am from publicStaticFunction");
+        return "zmy "+ args;
+    }
     public void publicNotStaticFunction(){
         Log.i("Moonlight","I am from publicNotStaticFunction");
     }
