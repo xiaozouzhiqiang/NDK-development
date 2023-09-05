@@ -132,7 +132,37 @@ Java_com_example_reflection_MainActivity_CallJavaStaticFun(JNIEnv* env,jobject /
 
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_reflection_MainActivity_CallJavaNotStaticFun(JNIEnv* env,jobject /* this */){
+    //public void publicNotStaticFunction(){ 调用公有非静态函数
+    //通过MoonObj对象去访问公有非静态函数
+    jclass MoonLightClass = env->FindClass("com/example/reflection/MoonlightTest");
+    jmethodID con_mid = env->GetMethodID(MoonLightClass,"<init>", "(Ljava/lang/String;I)V");
+    jstring arg0 = env->NewStringUTF("I am from CallJavaNotStaticFun");
+    jobject MoonObj = env->NewObject(MoonLightClass,con_mid,arg0,100);
+    jmethodID JavaPublicFun_mid = env->GetMethodID(MoonLightClass,"publicNotStaticFunction","()V");
+    env->CallVoidMethod(MoonObj,JavaPublicFun_mid);
 
+    //反射调用私有有参非静态函数
+    //private String privateStringNotStaticFunction(String args,int a)
+    jmethodID privateNStatic_mid = env->GetMethodID(MoonLightClass,"privateStringNotStaticFunction","(Ljava/lang/String;I)Ljava/lang/String;");
+    jstring arg1 = env->NewStringUTF("I am from JNI privateStringNotStaticFunction");
+    //jstring privateNStatic_result = static_cast<jstring>(env->CallObjectMethod(MoonObj,privateNStatic_mid,arg1, 200));
+    jvalue args[2];
+    args[0].l = arg1;
+    args[1].i = 200;
+    //使用CallObjectMethodA来获取返回值。第三个参数可以为数组指针类型
+    jstring privateNStatic_result2 = static_cast<jstring>(env->CallObjectMethodA(MoonObj,privateNStatic_mid,args));
+    const char* result_string = env->GetStringUTFChars(privateNStatic_result2, nullptr);
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","CallJavaNotStaticFun->%s,%d",result_string,200);
+
+    //反射java层非静态数组 类型的函数
+    //private int[] privateIntArrayNotStaticFunction(int num)
+    jmethodID privateIntNStatic_mid = env->GetMethodID(MoonLightClass,"privateIntArrayNotStaticFunction","(I)[I");
+    jintArray privateIntNStatic_Obj = static_cast<jintArray>(env->CallObjectMethod(MoonObj,privateIntNStatic_mid,10));
+    jint* array_ptr = env->GetIntArrayElements(privateIntNStatic_Obj, nullptr);
+    jint array_len = env->GetArrayLength(privateIntNStatic_Obj);
+    for (int i = 0; i < array_len; ++i) {
+        __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","array_ptr[%d]->%d",i,array_ptr[i]);
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL

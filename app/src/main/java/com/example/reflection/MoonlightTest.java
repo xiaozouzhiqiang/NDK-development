@@ -51,4 +51,16 @@ public class MoonlightTest {
     private void privateNotStaticFunction(){
         Log.i("Moonlight","I am from privateNotStaticFunction");
     }
+    private String privateStringNotStaticFunction(String args,int a){
+        Log.i("Moonlight","I am from privateStringNotStaticFunction");
+        return args + a;
+    }
+    private int[] privateIntArrayNotStaticFunction(int num) {
+        Log.i("Moonlight","I am from privateIntArrayNotStaticFunction");
+        int array[] = new int[num];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = i ;
+        }
+        return array;
+    }
 }
