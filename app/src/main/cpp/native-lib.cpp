@@ -8,6 +8,36 @@ extern "C"{
 jobject globalClassloader = nullptr;
 jclass findClass = nullptr;
 JavaVM* globalVM = nullptr;
+
+//extern "C" JNIEXPORT void JNICALL
+//Java_com_example_reflection_MainActivity_onCreate(JNIEnv* env,jobject obj,jobject BundleObj) {
+//    //super.onCreate(savedInstanceState);
+//    //binding = ActivityMainBinding.inflate(getLayoutInflater());
+//    //setContentView(binding.getRoot());
+//    //TextView tv = binding.sampleText;
+//    //tv.setText(stringFromJNI());
+//    jclass AppCompatActivity_JClass = env->FindClass("androidx/appcompat/app/AppCompatActivity");
+//    jclass MainActivity_Jclass = env->FindClass("com/example/reflection/MainActivity");
+//    //第二种获取方式
+//}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_reflection_MainActivity_onCreate(JNIEnv* env,jobject obj,jobject BundleObj){
+    //protected native void onCreate(Bundle savedInstanceState);
+    jclass AppCompatActivity_Class = env->FindClass("androidx/appcompat/app/AppCompatActivity");
+    jmethodID onCreate_mid = env->GetMethodID(AppCompatActivity_Class,"onCreate","(Landroid/os/Bundle;)V");
+    //    void CallNonvirtualVoidMethod(jobject obj, jclass clazz,jmethodID methodID, ...)
+    env->CallNonvirtualVoidMethod(obj,AppCompatActivity_Class,onCreate_mid,BundleObj);
+    //super.onCreate(savedInstanceState);
+    //Log.i("MoonLight","this is OnCreate");
+    jstring arg1 = env->NewStringUTF("MoonLight");
+    jstring arg2 = env->NewStringUTF("this is OnCreate");
+    jclass log_Class = env->FindClass("android/util/Log");
+    jmethodID log_mid = env->GetStaticMethodID(log_Class,"i","(Ljava/lang/String;Ljava/lang/String;)I");
+    jint log_result = env->CallStaticIntMethod(log_Class,log_mid,arg1,arg2);
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","onCreate->%d",log_result);
+}
+
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_reflection_MainActivity_stringFromJNI(JNIEnv* env,jobject /* this */) {
     env->GetJavaVM(&globalVM);

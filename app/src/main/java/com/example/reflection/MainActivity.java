@@ -2,6 +2,7 @@ package com.example.reflection;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -21,8 +22,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private ActivityMainBinding binding;
-
-    @Override
+    protected native void onCreate(Bundle savedInstanceState);
+    /*@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -41,10 +42,11 @@ public class MainActivity extends AppCompatActivity {
         //TestJavaIntArray(MoonObj); //测试调用java层int数组，查看在jni层修改的int array值，是否改变
         //MoonlightTest MoonObj2 = (MoonlightTest)CallInit(); //测试经过JNi层初始化后，构造函数是否初始化
         //Log.i("MoonLight->onCreate",MoonObj2.flag);
-        CallJavaStaticFun(); //Jni反射java层静态函数;
-        CallJavaNotStaticFun();//jni反射java层非静态函数;
-    }
+        //CallJavaStaticFun(); //Jni反射java层静态函数;
+        //CallJavaNotStaticFun();//jni反射java层非静态函数;
 
+    }
+    */
     public void execution_time(){
         long start = System.nanoTime();
         int result = java_add(1000000);
@@ -157,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Moonlight->java_array",i+"--"+java_array[i]);
         }
     }
-
     /**
      * A native method that is implemented by the 'reflection' native library,
      * which is packaged with this application.
