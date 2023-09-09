@@ -8,19 +8,58 @@ extern "C"{
 jobject globalClassloader = nullptr;
 jclass findClass = nullptr;
 JavaVM* globalVM = nullptr;
+jclass testClass = nullptr;
 
-//extern "C" JNIEXPORT void JNICALL
-//Java_com_example_reflection_MainActivity_onCreate(JNIEnv* env,jobject obj,jobject BundleObj) {
-//    //super.onCreate(savedInstanceState);
-//    //binding = ActivityMainBinding.inflate(getLayoutInflater());
-//    //setContentView(binding.getRoot());
-//    //TextView tv = binding.sampleText;
-//    //tv.setText(stringFromJNI());
-//    jclass AppCompatActivity_JClass = env->FindClass("androidx/appcompat/app/AppCompatActivity");
-//    jclass MainActivity_Jclass = env->FindClass("com/example/reflection/MainActivity");
-//    //第二种获取方式
-//}
+extern "C" JNIEXPORT void JNICALL
+Java_com_example_reflection_MainActivity_onCreate(JNIEnv* env,jobject thiz,jobject BundleObj) {
+    //实现以下方法
+    //第一种是已知类名了，采用Findclass获取父类
+    jclass AppCompatActivity_JClass = env->FindClass("androidx/appcompat/app/AppCompatActivity");
+    jclass MainActivity_Jclass = env->FindClass("com/example/reflection/MainActivity");
+    //第二种获取方式是获取当前Object对象，采用GetSuperclass来获取父类
+    jclass MainActivity_Jclss2 = env->GetObjectClass(thiz);
+    jclass AppCompatActivity_JClass2 = env->GetSuperclass(MainActivity_Jclss2);
 
+    // protected void onCreate(Bundle savedInstanceState),其中Bundle对象可以查看具体所在类，
+    jmethodID onCreate_mid = env->GetMethodID(AppCompatActivity_JClass2,"onCreate","(Landroid/os/Bundle;)V");
+    //super.onCreate(savedInstanceState);
+    env->CallNonvirtualVoidMethod(thiz,AppCompatActivity_JClass2,onCreate_mid,BundleObj);
+
+    //Log.i("MoonLight->onCreate",MoonObj2.flag);
+    jstring arg1 = env->NewStringUTF("MoonLight");
+    jstring arg2 = env->NewStringUTF("this is OnCreate");
+    jclass log_Class = env->FindClass("android/util/Log");
+    jmethodID log_mid = env->GetStaticMethodID(log_Class,"i","(Ljava/lang/String;Ljava/lang/String;)I");
+    jint log_result = env->CallStaticIntMethod(log_Class,log_mid,arg1,arg2);
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","onCreate->%d",log_result);
+
+    //setContentView(R.layout.activity_main); 这儿代码有些问题，因为版本原因
+//    jmethodID  setContentView_mid = env->GetMethodID(MainActivity_Jclss2,"setContentView","(I)V");
+//    jclass R_layoutClass = env->FindClass("com/example/reflection/R$layout");
+//    jfieldID activity_main_fieldId = env->GetStaticFieldID(R_layoutClass,"activity_main","I");
+//    jint activity_main_Value = env->GetStaticIntField(R_layoutClass,activity_main_fieldId);
+//    env->CallVoidMethod(thiz,setContentView_mid,activity_main_Value);
+//
+//    //TextView tv = findViewById(R.id.sample_text);
+//    jmethodID  findViewById_mid = env->GetMethodID(MainActivity_Jclss2,"findViewById","(I)Landroid/view/View");
+//    jclass R_idClass = env->FindClass("com/example/reflection/R$id");
+//    jfieldID sample_text_fieldId = env->GetStaticFieldID(R_idClass,"sample_text","I");
+//    jint sample_text_Value = env->GetStaticIntField(R_layoutClass,sample_text_fieldId);
+//    env->CallVoidMethod(thiz,findViewById_mid,sample_text_Value);
+
+    //MoonlightTest MoonObj2 = (MoonlightTest)CallInit(); //测试经过JNi层初始化后，构造函数是否初始化
+    //Log.i("MoonLight->onCreate",MoonObj2.flag);
+    jmethodID CallInit_mid = env->GetMethodID(MainActivity_Jclss2,"CallInit","()Ljava/lang/Object;");
+    jobject MoonObj2_field = env->CallObjectMethod(thiz,CallInit_mid);
+    jclass MoonlightTest_class = env->FindClass("com/example/reflection/MoonlightTest");
+    jfieldID fiag_field = env->GetFieldID(MoonlightTest_class,"flag", "Ljava/lang/String;");
+    jstring flag_value = static_cast<jstring>(env->GetObjectField(MoonObj2_field, fiag_field));
+    jint flag_result = env->CallStaticIntMethod(log_Class,log_mid,arg1,flag_value);
+    __android_log_print(ANDROID_LOG_INFO,"MoonLight->onCreate","flag_result->%d",flag_result);
+
+}
+
+/*
 extern "C" JNIEXPORT void JNICALL
 Java_com_example_reflection_MainActivity_onCreate(JNIEnv* env,jobject obj,jobject BundleObj){
     //protected native void onCreate(Bundle savedInstanceState);
@@ -36,7 +75,7 @@ Java_com_example_reflection_MainActivity_onCreate(JNIEnv* env,jobject obj,jobjec
     jmethodID log_mid = env->GetStaticMethodID(log_Class,"i","(Ljava/lang/String;Ljava/lang/String;)I");
     jint log_result = env->CallStaticIntMethod(log_Class,log_mid,arg1,arg2);
     __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","onCreate->%d",log_result);
-}
+}*/
 
 extern "C" JNIEXPORT jstring JNICALL
 Java_com_example_reflection_MainActivity_stringFromJNI(JNIEnv* env,jobject /* this */) {
@@ -297,6 +336,21 @@ void *MoonLightThreadTest(void *args){
     pthread_exit(0);
 }
 
+jobject MoonTestPushAndPushLocalFrame(JNIEnv* env){
+    jobject result = nullptr;
+    if(env->PushLocalFrame(20)==0){
+        for (int i = 0; i < 18; ++i) {
+            jstring MoonTmp = env->NewStringUTF("MoonLight");
+        }
+        jstring MoonTmp1 = env->NewStringUTF("MoonLight1");
+        jstring MoonTmp2 = env->NewStringUTF("MoonLight2");
+        result = env->PopLocalFrame(MoonTmp1);
+    } else{
+        //error
+    }
+    return result;
+}
+
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     __android_log_print(ANDROID_LOG_INFO, "Moonlight->Jni_OnLoad", "Jni_OnLoad is Called!");
     jint result = 0;
@@ -312,5 +366,22 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     //int pthread_create(pthread_t* __pthread_ptr, pthread_attr_t const* __attr, void* (*__start_routine)(void*), void*);
     pthread_create(&thread, nullptr,MoonLightThreadTest, nullptr);
     pthread_join(thread, nullptr);
+    jclass MoonLightTestClass = env->FindClass("com/example/reflection/MoonlightTest"); //获取类
+    testClass = static_cast<jclass>(env->NewGlobalRef(MoonLightTestClass));
+    env->DeleteGlobalRef(testClass);
+    int len = 10;
+    if(env->EnsureLocalCapacity(10)==0){
+        for (int i = 0; i < len; ++i) {
+            jstring content = env->NewStringUTF("EnsureLocalCapacity test");
+            __android_log_print(ANDROID_LOG_INFO,"MoonLight->JNI_OnLoad","EnsureLocalCapacity->%d",i);
+            env->DeleteLocalRef(content);
+        }
+    }
+    jobject resultObj = MoonTestPushAndPushLocalFrame(env);
+    //IsSameObject判断一个引用对象的值是否为空
+    if(!env->IsSameObject(resultObj,NULL)){
+        const char* CharContent = env->GetStringUTFChars(static_cast<jstring>(resultObj), nullptr);
+        __android_log_print(ANDROID_LOG_INFO, "oonLight->JNI_OnLoad", "MoonTestPushAndPushLocalFrame-> %s",CharContent);
+    }
     return result;
 }

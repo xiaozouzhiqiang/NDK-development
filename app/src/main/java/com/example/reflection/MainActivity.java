@@ -1,11 +1,8 @@
 package com.example.reflection;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.example.reflection.databinding.ActivityMainBinding;
 
@@ -22,8 +19,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private ActivityMainBinding binding;
+
     protected native void onCreate(Bundle savedInstanceState);
-    /*@Override
+    /*
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -46,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         //CallJavaNotStaticFun();//jni反射java层非静态函数;
 
     }
-    */
+*/
     public void execution_time(){
         long start = System.nanoTime();
         int result = java_add(1000000);
