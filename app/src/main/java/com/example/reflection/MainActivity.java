@@ -14,8 +14,10 @@ import java.lang.reflect.Method;
 public class MainActivity extends AppCompatActivity {
 
     // Used to load the 'reflection' library on application startup.
-    static {
+    {
+        MoonlightTest MoonObj = new MoonlightTest("I am from Java MoonlightTest");
         System.loadLibrary("reflection");
+        this.getJavaNotStaticField(MoonObj);
     }
 
     private ActivityMainBinding binding;

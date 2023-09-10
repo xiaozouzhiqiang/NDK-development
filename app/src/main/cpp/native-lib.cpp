@@ -10,8 +10,7 @@ jclass findClass = nullptr;
 JavaVM* globalVM = nullptr;
 jclass testClass = nullptr;
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_reflection_MainActivity_onCreate(JNIEnv* env,jobject thiz,jobject BundleObj) {
+__attribute__((visibility("hidden"))) void onCreate(JNIEnv* env,jobject thiz,jobject BundleObj){
     //实现以下方法
     //第一种是已知类名了，采用Findclass获取父类
     jclass AppCompatActivity_JClass = env->FindClass("androidx/appcompat/app/AppCompatActivity");
@@ -233,9 +232,7 @@ Java_com_example_reflection_MainActivity_CallJavaNotStaticFun(JNIEnv* env,jobjec
         __android_log_print(ANDROID_LOG_INFO,"MoonLight->Jni","array_ptr[%d]->%d",i,array_ptr[i]);
     }
 }
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_example_reflection_MainActivity_getJavaNotStaticField(JNIEnv* env,jobject obj,jobject MoonObj) {
+__attribute__((visibility("hidden"))) void getJavaNotStaticField(JNIEnv* env,jobject obj,jobject MoonObj) {
     //访问私有的非静态属性
     //private  String privateNotStaticField = "I am private Not StaticField";
     jclass MoonLightTestClass = env->FindClass("com/example/reflection/MoonlightTest"); //获取类
@@ -381,7 +378,19 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
     //IsSameObject判断一个引用对象的值是否为空
     if(!env->IsSameObject(resultObj,NULL)){
         const char* CharContent = env->GetStringUTFChars(static_cast<jstring>(resultObj), nullptr);
-        __android_log_print(ANDROID_LOG_INFO, "oonLight->JNI_OnLoad", "MoonTestPushAndPushLocalFrame-> %s",CharContent);
+        __android_log_print(ANDROID_LOG_INFO, "MoonLight->JNI_OnLoad", "MoonTestPushAndPushLocalFrame-> %s",CharContent);
     }
+
+    //实现OnCreate和getJavaNotStaticField函数的动态注册
+    JNINativeMethod jniNativeMethod[] = {
+            {"onCreate","(Landroid/os/Bundle;)V",(void*)onCreate},
+            {"getJavaNotStaticField","(Ljava/lang/Object;)V",(void*)getJavaNotStaticField}
+    };
+    jclass MainActivity_Jclass = env->FindClass("com/example/reflection/MainActivity");
+    //RegisterNatives函数参数的意义。第一个是函数名，第二个是方法列表，第三个是总共注册几个，
+    env->RegisterNatives(MainActivity_Jclass,jniNativeMethod,sizeof(jniNativeMethod)/sizeof(JNINativeMethod));
+
+
+
     return result;
 }
